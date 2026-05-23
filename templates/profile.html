@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile — SecureAuth{% endblock %}
+
+{% block content %}
+<div class="profile-page animate-fadeIn">
+    <!-- Profile Page Header -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <!-- User Profile Header Card -->
+            <div class="glass-card text-center p-4 h-100 d-flex flex-column justify-content-center align-items-center">
+                <div class="profile-avatar-wrapper mb-3">
+                    <div class="profile-avatar-circle">
+                        {{ current_user.username[:2]|upper }}
+                    </div>
+                </div>
+                <h4 class="text-white mb-1">{{ current_user.username }}</h4>
+                <p class="text-muted-custom mb-3">{{ current_user.email }}</p>
+                <div>
+                    {% if failed_count > 0 %}
+                    <span class="badge bg-warning-glow text-accent-yellow"><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ failed_count }} Failed Attempts</span>
+                    {% else %}
+                    <span class="badge bg-success-glow text-accent-green"><i class="bi bi-shield-fill-check me-1"></i> Account Secure</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Account Details Card -->
+            <div class="glass-card p-4 h-100">
+                <h5 class="text-white mb-4"><i class="bi bi-person-lines-fill me-2 text-accent-cyan"></i> Account Specifications</h5>
+                
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="text-muted-custom sm-text d-block mb-1">Username</label>
+                        <div class="p-3 bg-secondary-glow border-glass rounded text-white">
+                            {{ current_user.username }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-6">
+                        <label class="text-muted-custom sm-text d-block mb-1">Email Address</label>
+                        <div class="p-3 bg-secondary-glow border-glass rounded text-white text-truncate" title="{{ current_user.email }}">
+                            {{ current_user.email }}
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="text-muted-custom sm-text d-block mb-1">Member Since</label>
+                        <div class="p-3 bg-secondary-glow border-glass rounded text-white">
+                            {{ current_user.created_at|datetimeformat }}
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="text-muted-custom sm-text d-block mb-1">Last Updated</label>
+                        <div class="p-3 bg-secondary-glow border-glass rounded text-white">
+                            {{ current_user.updated_at|datetimeformat }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="row g-4">
+        <!-- Change Password Form -->
+        <div class="col-lg-5">
+            <div class="glass-card h-100">
+                <div class="card-header-custom p-4 border-bottom-glass">
+                    <h5 class="mb-0 text-white"><i class="bi bi-key-fill me-2 text-accent-purple"></i> Modify Password</h5>
+                </div>
+                <div class="card-body-custom p-4">
+                    <form method="POST" action="{{ url_for('auth.change_password') }}" id="change-password-form" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <!-- Current Password -->
+                        <div class="form-floating-custom mb-3">
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-lock input-icon"></i>
+                                <input type="password" class="form-control custom-input" id="current_password" name="current_password" placeholder="Current password" required>
+                                <label for="current_password" class="custom-label">Current Password</label>
+                                <button type="button" class="btn-toggle-password" data-target="current_password" aria-label="Toggle password visibility">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- New Password -->
+                        <div class="form-floating-custom mb-3">
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-shield-lock input-icon"></i>
+                                <input type="password" class="form-control custom-input" id="new_password" name="new_password" placeholder="New password" required autocomplete="new-password">
+                                <label for="new_password" class="custom-label">New Password</label>
+                                <button type="button" class="btn-toggle-password" data-target="new_password" aria-label="Toggle password visibility">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Password Strength Meter -->
+                        <div id="password-strength-meter" class="strength-meter mb-3">
+                            <div class="strength-bar-track">
+                                <div class="strength-bar-fill" id="strength-bar-fill"></div>
+                            </div>
+                            <span class="strength-text" id="strength-text">Password strength</span>
+                        </div>
+
+                        <!-- Requirements Checklist -->
+                        <div class="password-checklist mb-3" id="password-checklist">
+                            <div class="checklist-item" data-requirement="length">
+                                <i class="bi bi-x-circle-fill checklist-icon"></i>
+                                <span>At least 8 characters</span>
+                            </div>
+                            <div class="checklist-item" data-requirement="uppercase">
+                                <i class="bi bi-x-circle-fill checklist-icon"></i>
+                                <span>One uppercase letter</span>
+                            </div>
+                            <div class="checklist-item" data-requirement="lowercase">
+                                <i class="bi bi-x-circle-fill checklist-icon"></i>
+                                <span>One lowercase letter</span>
+                            </div>
+                            <div class="checklist-item" data-requirement="digit">
+                                <i class="bi bi-x-circle-fill checklist-icon"></i>
+                                <span>One digit (0-9)</span>
+                            </div>
+                            <div class="checklist-item" data-requirement="special">
+                                <i class="bi bi-x-circle-fill checklist-icon"></i>
+                                <span>One special character (!@#$...)</span>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-floating-custom mb-4">
+                            <div class="input-icon-wrapper">
+                                <i class="bi bi-lock-fill input-icon"></i>
+                                <input type="password" class="form-control custom-input" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required autocomplete="new-password">
+                                <label for="confirm_password" class="custom-label">Confirm New Password</label>
+                                <button type="button" class="btn-toggle-password" data-target="confirm_password" aria-label="Toggle password visibility">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-match-indicator d-none" id="password-match-indicator">
+                                <i class="bi"></i>
+                                <span></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-gradient btn-submit w-100" id="change-pass-submit">
+                            <span class="btn-text">Update Password</span>
+                            <span class="btn-loader d-none">
+                                <span class="spinner-border spinner-border-sm me-2"></span> Updating...
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session History Logs -->
+        <div class="col-lg-7">
+            <div class="glass-card h-100">
+                <div class="card-header-custom d-flex align-items-center justify-content-between p-4 border-bottom-glass">
+                    <h5 class="mb-0 text-white"><i class="bi bi-shield-lock me-2 text-accent-green"></i> Session Audit Logs</h5>
+                    <span class="badge bg-secondary-glow text-muted-custom">Up to 50 attempts</span>
+                </div>
+                <div class="card-body-custom p-4">
+                    {% if login_history %}
+                    <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                        <table class="table custom-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>User Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in login_history %}
+                                <tr>
+                                    <td>{{ log.timestamp|datetimeformat }}</td>
+                                    <td><code>{{ log.ip_address }}</code></td>
+                                    <td>
+                                        {% if log.success %}
+                                        <span class="badge bg-success-glow text-accent-green">Success</span>
+                                        {% else %}
+                                        <span class="badge bg-danger-glow text-accent-red">Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-truncate-200" title="{{ log.user_agent }}">{{ log.user_agent }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-lock fs-1 text-muted-custom mb-3 d-block"></i>
+                        <p class="text-muted-custom">No audits recorded yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Add local bindings for change password page checkers -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Init strength triggers specifically for profile page password change form if needed
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — SecureAuth{% endblock %}
+
+{% block content %}
+<div class="dashboard-page animate-fadeIn">
+    <!-- Dashboard Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h1 class="h2 text-white">Welcome back, {{ current_user.username }}! 👋</h1>
+            <p class="text-muted-custom mb-0">System status: <span class="badge bg-success-glow text-accent-green"><i class="bi bi-shield-fill-check me-1"></i> Secured</span> | Monitoring active</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ url_for('dashboard.profile') }}" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-gear-fill me-1"></i> Account Security Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Security Stats Cards -->
+    <div class="row g-4 mb-5">
+        <!-- Card 1: Total Logins -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card glass-card border-top-cyan">
+                <div class="stat-card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label text-muted-custom mb-1">Total Logins</p>
+                        <h3 class="stat-value text-white mb-0" id="total-logins-val">{{ stats.total_logins }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-cyan">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Failed Attempts -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card glass-card border-top-red">
+                <div class="stat-card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label text-muted-custom mb-1">Failed Attempts</p>
+                        <h3 class="stat-value text-white mb-0" id="failed-logins-val">{{ stats.failed_logins }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-red">
+                        <i class="bi bi-shield-x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Last Login -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card glass-card border-top-yellow">
+                <div class="stat-card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label text-muted-custom mb-1">Last Login</p>
+                        <h5 class="stat-value text-white mb-0" id="last-login-val" style="font-size: 1rem; word-break: break-all;">{{ stats.last_login }}</h5>
+                    </div>
+                    <div class="stat-icon-wrapper icon-yellow">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Account Age -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card glass-card border-top-green">
+                <div class="stat-card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="stat-label text-muted-custom mb-1">Account Age</p>
+                        <h3 class="stat-value text-white mb-0" id="account-age-val">{{ stats.account_age }}</h3>
+                    </div>
+                    <div class="stat-icon-wrapper icon-green">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Recent Activity Section -->
+        <div class="col-lg-8">
+            <div class="glass-card h-100">
+                <div class="card-header-custom d-flex align-items-center justify-content-between p-4 border-bottom-glass">
+                    <h5 class="mb-0 text-white"><i class="bi bi-activity me-2 text-accent-cyan"></i> Recent Login Activity</h5>
+                    <span class="badge bg-secondary-glow text-muted-custom">Last 10 attempts</span>
+                </div>
+                <div class="card-body-custom p-4">
+                    {% if login_history %}
+                    <div class="table-responsive">
+                        <table class="table custom-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>Device / User Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in login_history %}
+                                <tr>
+                                    <td>{{ log.timestamp|datetimeformat }}</td>
+                                    <td><code>{{ log.ip_address }}</code></td>
+                                    <td>
+                                        {% if log.success %}
+                                        <span class="badge bg-success-glow text-accent-green">Success</span>
+                                        {% else %}
+                                        <span class="badge bg-danger-glow text-accent-red">Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-truncate-250" title="{{ log.user_agent }}">{{ log.user_agent }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-database-exclamation fs-1 text-muted-custom mb-3 d-block"></i>
+                        <p class="text-muted-custom">No recent activity found.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Best Practices & Tips -->
+        <div class="col-lg-4">
+            <div class="glass-card h-100">
+                <div class="card-header-custom p-4 border-bottom-glass">
+                    <h5 class="mb-0 text-white"><i class="bi bi-shield-shaded me-2 text-accent-purple"></i> Security Hardening</h5>
+                </div>
+                <div class="card-body-custom p-4">
+                    <div class="d-flex flex-column gap-4">
+                        <div class="d-flex gap-3">
+                            <div class="tip-icon text-accent-cyan fs-4">
+                                <i class="bi bi-key-fill"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">Use a Strong Password</h6>
+                                <p class="text-muted-custom sm-text mb-0">Ensure passwords are at least 12 characters, mixing uppercase, lowercase, numbers, and symbols.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <div class="tip-icon text-accent-green fs-4">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">Regular Password Auditing</h6>
+                                <p class="text-muted-custom sm-text mb-0">Update your passwords periodically, and never reuse passwords across multiple sites.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <div class="tip-icon text-accent-purple fs-4">
+                                <i class="bi bi-wifi"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">Avoid Public Networks</h6>
+                                <p class="text-muted-custom sm-text mb-0">Do not access your security panel or dashboard over unsecured public Wi-Fi networks.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <div class="tip-icon text-accent-yellow fs-4">
+                                <i class="bi bi-pc-display-horizontal"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-1">Monitor Session Activity</h6>
+                                <p class="text-muted-custom sm-text mb-0">Routinely review the left activity log to verify all logins originate from your recognized IPs.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

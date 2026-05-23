@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Login — SecureAuth{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <!-- Decorative Background Elements -->
+    <div class="auth-bg-decoration">
+        <div class="bg-shape bg-shape-1"></div>
+        <div class="bg-shape bg-shape-2"></div>
+        <div class="bg-shape bg-shape-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <div class="auth-wrapper animate-fadeInUp">
+        <div class="auth-card glass-card">
+            <!-- Card Header -->
+            <div class="auth-card-header text-center">
+                <div class="auth-icon-wrapper">
+                    <div class="auth-icon-circle">
+                        <i class="bi bi-lock-fill"></i>
+                    </div>
+                </div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your secure account</p>
+            </div>
+
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form" id="login-form" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                <!-- Email -->
+                <div class="form-floating-custom mb-3">
+                    <div class="input-icon-wrapper">
+                        <i class="bi bi-envelope input-icon"></i>
+                        <input type="email" class="form-control custom-input" id="email" name="email" placeholder="Email address" required autocomplete="email">
+                        <label for="email" class="custom-label">Email Address</label>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-floating-custom mb-3">
+                    <div class="input-icon-wrapper">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input type="password" class="form-control custom-input" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+                        <label for="password" class="custom-label">Password</label>
+                        <button type="button" class="btn-toggle-password" data-target="password" aria-label="Toggle password visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="form-check custom-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                    <label class="form-check-label" for="remember">Remember me</label>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-gradient btn-submit w-100" id="login-submit">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loader d-none">
+                        <span class="spinner-border spinner-border-sm me-2"></span> Signing in...
+                    </span>
+                    <i class="bi bi-arrow-right ms-2 btn-arrow"></i>
+                </button>
+            </form>
+
+            <!-- Footer Link -->
+            <div class="auth-card-footer text-center mt-4">
+                <p class="text-muted-custom">
+                    Don't have an account?
+                    <a href="{{ url_for('auth.signup') }}" class="auth-link">Create one now <i class="bi bi-arrow-right-short"></i></a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
